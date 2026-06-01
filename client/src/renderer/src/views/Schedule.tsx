@@ -1,6 +1,13 @@
+import Menu from "../components/Menu";
+
 function Schedule() : React.ReactElement {
     return (
-        <h1></h1>
+        <>
+            <Menu />
+            <main>
+                
+            </main>
+        </>
     );
 }
 

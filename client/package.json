@@ -15,6 +15,7 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.9.1",
     "@types/react": "^19.2.15",
     "@types/react-dom": "^19.2.3",
@@ -27,6 +28,8 @@
     "vite": "^7.3.3"
   },
   "dependencies": {
+    "jsonwebtoken": "^9.0.3",
+    "jwt-decode": "^4.0.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
     "react-router-dom": "^7.16.0"

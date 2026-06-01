@@ -28,3 +28,7 @@ yarn-error.log*
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
+
+# Claude Code
+CLAUDE.md
+.claude/
