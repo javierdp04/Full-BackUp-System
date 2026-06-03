@@ -28,6 +28,7 @@
     "vite": "^7.3.3"
   },
   "dependencies": {
+    "dotenv": "^17.4.2",
     "jsonwebtoken": "^9.0.3",
     "jwt-decode": "^4.0.0",
     "react": "^19.2.6",

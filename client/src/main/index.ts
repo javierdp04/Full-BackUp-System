@@ -1,5 +1,6 @@
-import { app, BrowserWindow, Menu } from 'electron'
+import { app, BrowserWindow, ipcMain, IpcMainInvokeEvent, Menu } from 'electron'
 import { join } from 'path'
+import "dotenv/config"
 
 function createWindow(): void {
     const window = new BrowserWindow({
@@ -7,12 +8,10 @@ function createWindow(): void {
         height: 600,
         webPreferences: {
             preload: join(__dirname, '../preload/index.js'),
-            sandbox: false
         }
     })
 
-    // En desarrollo carga el servidor de Vite (con recarga en caliente).
-    // En producción (build) carga el HTML ya empaquetado.
+
     if (process.env['ELECTRON_RENDERER_URL']) {
         window.loadURL(process.env['ELECTRON_RENDERER_URL'])
     } else {
@@ -21,20 +20,23 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
+    ipcMain.handle("get-envVar", getEnvVar);
     createWindow()
-
-    // En macOS es habitual recrear la ventana al hacer clic en el icono del dock.
-    app.on('activate', () => {
-        if (BrowserWindow.getAllWindows().length === 0) {
-            createWindow()
-        }
-    })
 })
-
+    
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
         app.quit()
     }
 })
 
+
 Menu.setApplicationMenu(null);
+
+async function getEnvVar(event : Electron.IpcMainInvokeEvent, name : string) : Promise<string> {
+    const value = process.env[name];
+
+    if(!value || value.length == 0 ) throw Error(`Can't find ${name} on dotenv`);
+    
+    return value;
+}
