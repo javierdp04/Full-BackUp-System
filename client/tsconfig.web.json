@@ -11,5 +11,5 @@
     "noEmit": true,
     "types": []
   },
-  "include": ["src/renderer/src/**/*", "src/scripts/**/*", "src/preload/index.d.ts"]
+  "include": ["src/renderer/src/**/*", "src/scripts/**/*", "src/preload/index.d.ts", "src/shared/**/*"]
 }
