@@ -34,7 +34,9 @@ coverage/
 # Archivos del sistema operativo
 .DS_Store
 Thumbs.db
-
+    
 # Claude Code
 CLAUDE.md
 .claude/
+
+EndPoints por implementar.txt
