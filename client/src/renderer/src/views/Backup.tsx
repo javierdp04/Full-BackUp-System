@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import Menu from "../components/Menu";
 import TextButton from "../components/TextButton";
+import TextInput from "../components/TextInput";
 
 function Backup() : React.ReactElement {
     const [amountSaved, setAmountSaved] = useState(0);
     const [date , setDate] = useState<Date | string>();
     const [status, setStatus] = useState(false);
     const [spaceUsed, setSpaceUsed] = useState(0);
+
+    const [filesPathsToInclude, setFileToInclude] = useState<File[]>([]);
+    const [filesPathsToExclude, setFileToExclude] = useState<File[]>([]);
 
     useEffect(() =>{
         async function loadMetaData() {
@@ -20,6 +24,10 @@ function Backup() : React.ReactElement {
         }
     }, [])
 
+    useEffect(() => {
+
+    }, [filesPathsToExclude, filesPathsToInclude])
+
     return (
         <>
             <Menu />
@@ -31,9 +39,9 @@ function Backup() : React.ReactElement {
                         <span>  { date ? new Date(date).toLocaleDateString("en-US") : "Never" } </span>
                     </button>
                     <button></button>
-                    <TextButton title="Files to Back Up" description="Only files in the following folders are saved" onclick={() => {}}/>
+                    <TextInput title="Files to Back Up" description="Only files in the following folders are saved" setState={ setFileToInclude} type="file"/>
                     <ul id="filesToBackUp" className="files-list"></ul>
-                    <TextButton title="Exclude from Back Up" description="The following folders are excluded from the back up" onclick={() => {}}/>
+                    <TextInput title="Exclude from Back Up" description="The following folders are excluded from the back up" setState={ setFileToExclude } type="file"/>
                     <ul id="filesToExclude" className="files-list"></ul>
                 </div>
             </main>
