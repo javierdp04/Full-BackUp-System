@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Navigate, redirect } from "react-router-dom"
+import { Navigate } from "react-router-dom"
 import { jwtDecode, type JwtPayload } from "jwt-decode"
 import type { AuthState } from "../shared/models/models"
 
@@ -19,30 +19,26 @@ export  function ProtectedLayout(children  : React.ReactElement) : React.ReactEl
 }
 
 async function verifyUser() : Promise<Record<string, boolean>> {
-    const serverUrl : Promise<string> =  window.electronApi.getEnvVariable("SERVER_URL");
+    const serverUrl : string =  await window.electronApi.getEnvVariable("SERVER_URL");
     const jwt : string | null = localStorage.getItem("token");
-    let functReturn : Record<string, boolean> = {"valid" : false}
 
-    if(!jwt) return functReturn;
+    if(!serverUrl) throw Error("Couldn't find the server URL");
+    if(!jwt) return {"valid" : false};
     const { exp } = jwtDecode<JwtPayload>(jwt);
-    if(!exp || exp *1000 < Date.now()) return functReturn;
+    if(!exp || exp *1000 < Date.now()) return {"valid" : false};
     
-
-    const responseUrl : string = await serverUrl;
-    if(!responseUrl) throw Error("Couldn't find the server URL");
-
-    const validationFetch = fetch(`${responseUrl}/auth/verify`, {
+    
+    const response = await fetch(`${serverUrl}/auth/verify`, {
         method : "GET",
         headers : {
-            "Authorization" : `${jwt}`,
+            "Authorization" : `Bearer ${jwt}`,
             "Content-type" : "application/json"
         }
     });
 
-    const response = await validationFetch;
-    if(!response.ok) return functReturn;
+    if(!response.ok) return {"valid" : false};
     const jsonResponse = await response.json() as {"valid" : boolean};
-    if(!jsonResponse.valid) return functReturn;
+    if(!jsonResponse.valid) return {"valid" : false};
 
     return jsonResponse;
 }

@@ -1,5 +1,4 @@
 import "dotenv/config";
-import process = require("node:process");
 
 const getEnvVariable = async (name : string) : Promise<string> => {
     const value = process.env[name];

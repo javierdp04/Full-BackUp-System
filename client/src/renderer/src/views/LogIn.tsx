@@ -1,4 +1,4 @@
-import React, { useEffectEvent, useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useNavigate } from "react-router-dom";
 import type { AuthState } from "../../../shared/models/models";
 
@@ -21,13 +21,13 @@ function LogIn() : React.ReactElement {
             body : JSON.stringify({username, password})
         });
 
-            if(!res.ok)  {
+            if(!res.ok) {
                 setState('Unauthorized');
                 setError("Try again");
             }
             else {
                 const data = await res.json();
-                localStorage.setItem("token", data);
+                localStorage.setItem("token", data["token"]);
                 setState('Authorized');
             }
         return state == 'Authorized' ? navigate("/") : navigate("/login");

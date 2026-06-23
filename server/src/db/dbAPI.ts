@@ -1,5 +1,5 @@
 import mysql from 'mysql';
-import getEnvVariable from '../scripts/env_utils.js';
+import getEnvVariable from '../utils/env_utils.js';
 
 const connection = mysql.createConnection({
     host : await getEnvVariable("DB_URL"),

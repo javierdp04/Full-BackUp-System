@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Menu from "../components/Menu";
-import TextButton from "../components/TextButton";
 import TextInput from "../components/TextInput";
 
 function Backup() : React.ReactElement {

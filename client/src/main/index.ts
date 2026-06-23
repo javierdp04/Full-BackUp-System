@@ -3,7 +3,6 @@ import { join } from 'path';
 import * as fs from 'fs';
 import "dotenv/config";
 import { BackUpState } from "../shared/models/models"
-import { error } from 'console';
 
 function createWindow(): void {
     const window = new BrowserWindow({
@@ -54,16 +53,16 @@ const loadBackupState = async (event : Electron.IpcMainInvokeEvent) : Promise<Ba
         const raw = await fs.promises.readFile(stateFile(), "utf-8");
         const parsed = JSON.parse(raw) as BackUpState;
 
-        return { ...parsed, date : new Date(parsed.date) };
+        return parsed;
     } catch (error) {
         if ((error as NodeJS.ErrnoException).code === "ENOENT") return null;
         throw Error(`Error loading backup-metadata: ${error}`);
     }
 }
 
-const writeBackupState = (event : Electron.IpcMainInvokeEvent, newData : BackUpState) : boolean => {
+const writeBackupState = async (event : Electron.IpcMainInvokeEvent, newData : BackUpState) : Promise<Boolean> => {
     try {
-        fs.writeFileSync(stateFile(), JSON.stringify(newData, null, 2), "utf-8");
+        await fs.writeFileSync(stateFile(), JSON.stringify(newData, null, 2), "utf-8");
         return true;
     } catch (error) {
         throw Error(`Couldn't store last backup metadata. error: ${error}`);

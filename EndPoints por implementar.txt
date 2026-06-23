@@ -1,2 +1,3 @@
 EndPoints por implementar : 
 	-/auth/verify : GET- Recive un jwt en  headers->authorization que tiene que devolver {"valid" : true}
+	-/auth/login: 
