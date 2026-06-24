@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Menu from "../components/Menu";
 import TextInput from "../components/TextInput";
 
+
 function Backup() : React.ReactElement {
     const [amountSaved, setAmountSaved] = useState(0);
     const [date , setDate] = useState<Date | string>();
@@ -24,9 +25,24 @@ function Backup() : React.ReactElement {
     }, [])
 
     useEffect(() => {
+        let newFilesToExclude : File[] = filesPathsToExclude; 
 
+        for(let i = filesPathsToExclude.length-1; i>=0;i--) {
+            const pathToExclude = filesPathsToExclude[i];
+
+            if(!pathToExclude) continue;
+
+            if(filesPathsToInclude.includes(pathToExclude)) {
+                newFilesToExclude = newFilesToExclude.toSpliced(i, 1);
+            }
+        }   
+
+        setFileToExclude(newFilesToExclude);
     }, [filesPathsToExclude, filesPathsToInclude])
 
+    const handleBackup = async () =>  {
+       
+    }
     return (
         <>
             <Menu />
@@ -37,11 +53,23 @@ function Backup() : React.ReactElement {
                         <span>Last Backup {status ? "Sucesfull" : "Never" }</span>
                         <span>  { date ? new Date(date).toLocaleDateString("en-US") : "Never" } </span>
                     </button>
-                    <button></button>
-                    <TextInput title="Files to Back Up" description="Only files in the following folders are saved" setState={ setFileToInclude} type="file"/>
-                    <ul id="filesToBackUp" className="files-list"></ul>
-                    <TextInput title="Exclude from Back Up" description="The following folders are excluded from the back up" setState={ setFileToExclude } type="file"/>
-                    <ul id="filesToExclude" className="files-list"></ul>
+                    <button onClick={ handleBackup }>Backup now</button>
+                    <TextInput inputId= "filesToInclude" title="Files to Back Up" description="Only files in the following folders are saved" setState={ setFileToInclude} type="file"/>
+                    <ul id="filesToBackUp" className="files-list">
+                        {
+                            filesPathsToExclude.map((e) => (
+                                <li>{e.name}</li>
+                            ))
+                        }
+                    </ul>
+                    <TextInput inputId= "filesToExclude" title="Exclude from Back Up" description="The following folders are excluded from the back up" setState={ setFileToExclude } type="file"/>
+                    <ul id="filesToExclude" className="files-list">
+                        {
+                            filesPathsToInclude.map((e) => (
+                                <li>{e.name}</li>
+                            ))
+                        }
+                    </ul>
                 </div>
             </main>
         </>

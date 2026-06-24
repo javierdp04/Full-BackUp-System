@@ -1,6 +1,7 @@
 import React, { useEffectEvent } from "react"
 
 interface TextInputProps {
+    inputId : string,
     title : string,
     description : string,
     type : string,
@@ -8,7 +9,7 @@ interface TextInputProps {
 
 }
 
-const TextInput = ({title, description, type, setState} : TextInputProps) => {
+const TextInput = ({inputId, title, description, type, setState } : TextInputProps) => {
     
     const handleChange = (e : React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
@@ -25,7 +26,7 @@ const TextInput = ({title, description, type, setState} : TextInputProps) => {
                 <h3>{ title }</h3>
                 <p>{ description }</p>
             </div>
-            <input type= { type } multiple onChange={ handleChange }/>
+            <input id= { inputId } type= { type } multiple onChange={ handleChange }/>
         </div>
     )
 }

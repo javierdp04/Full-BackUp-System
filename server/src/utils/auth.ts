@@ -1,4 +1,3 @@
-import { error } from "console";
 import connection from "../db/dbAPI.js";
 import crypto from "crypto";
 
@@ -13,7 +12,7 @@ const hashedPasswordFromDB = async (username : string) : Promise<string> => {
 
             const hashedPassword = results[0].hashedPassword;
 
-            return hashedPassword;
+            resolve(hashedPassword);
         })
     })
 };

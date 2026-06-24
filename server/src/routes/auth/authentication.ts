@@ -34,3 +34,5 @@ router.get("/verify", async (req, res, next) => {
         res.status(403).json({error : "Invalid token"});
     }
 })
+
+export default router;

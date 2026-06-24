@@ -4,5 +4,15 @@ export type BackUpState = {
     date : Date,
     status : boolean,
     amountSaved : number,
-    spaceUsed : number // Newly used space in this backup
+    spaceUsed : number // New used space in this backup
+}
+
+export type Chunk = {
+    offset : number,
+    hash : string
+}
+
+export type FileData = {
+    hash : string,
+    path : string
 }
