@@ -1,7 +1,9 @@
 import { Chunk } from "../shared/models/models"
 import { chunksToHash, fileSliceToHash } from "./crypto_utils";
 import { FileData } from "../shared/models/models";
+import chunkMemManager from "../shared/models/hashMem";
 
+const chunkHasMemManager = new chunkMemManager();
 
 const fileToChunks = async (file : File) : Promise<Chunk[]> => { // units(chunkSize) == Byte
     let chunkPromises : Promise<Chunk>[] = [];
@@ -34,6 +36,8 @@ const rawFilesHandler = async (files : File[]) : Promise<FileData[]> => {
             let chunks : Chunk[] = await fileToChunks(file);
             let fileHash : string =  await chunksToHash(chunks);
             
+            chunkHasMemManager.addChunk({fileHash : chunks});
+
             procesedFiles.push({
                 hash : fileHash,
                 path : file.webkitRelativePath
@@ -43,5 +47,32 @@ const rawFilesHandler = async (files : File[]) : Promise<FileData[]> => {
         Promise.reject({error : `An error occured processing your files : ${error}`});
     };
     return Promise.resolve(procesedFiles);
+}
+
+const getMissingFilesAndChunksInServer = async (files : FileData[]) : Promise<string[]> => {
+    const jwt = localStorage.getItem("token");
+
+    const data : Set<Record<string, Chunk[]>> = chunkHasMemManager.getChunks();
+
+    try{
+        const response = await fetch("/backup/compare-files", {
+            method : "POST",
+            headers : {
+                "Content-Type" : "application/json",
+                "Authorization" : `Bearer ${jwt}`
+            },
+            body : JSON.stringify(data)
+        });
+        if(!response.ok) {
+            throw new Error(`Server error : ${response.status}`)
+        }
+
+        const result = await response.json();
+
+        return result;
+
+    }catch(error) {
+        throw error;
+    }
 }
 

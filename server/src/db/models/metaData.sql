@@ -6,12 +6,11 @@ create table if not exists User (
 )
 
 create table if not exists File (   
-    id varvarchar(10) primary key,
+    hash varchar(256) primary key,
     username references to User.username,
     name varvarchar(50) not null,
     size BIGINT not null,
     fullPath text not null,
-    hash varchar(256) not null,
 
     UNIQUE (username, full_path)
 )
@@ -24,7 +23,7 @@ create table if not exists Chunk (
 
 create table if not exists File-Chunk (
     hashSha256 varchar(256) references to Chunk.hashSha256,
-    fileId varvarchar(10) references to File.id,
+    fileId varvarchar(10) references to File.hash,
     chunkOrder int not null,
 
     primary key(chunkOrder, fileId)
