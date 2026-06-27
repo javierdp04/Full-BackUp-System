@@ -1,78 +1,84 @@
-import { Chunk } from "../shared/models/models"
-import { chunksToHash, fileSliceToHash } from "./crypto_utils";
-import { FileData } from "../shared/models/models";
-import chunkMemManager from "../shared/models/hashMem";
+import { fileSliceToHash, getToken  } from "./crypto_utils";
+import { FileData, Chunk, BackUpMetadata } from "../shared/models/models";
 
-const chunkHasMemManager = new chunkMemManager();
+const sendMetadataAndGetFilesToSend(metaData : BackUpMetadata) : Promise<any> => {
+    const jwt : string | null = getToken();
+    if(!jwt || jwt?.length === 0) throw Error("Can't get jwt");
 
-const fileToChunks = async (file : File) : Promise<Chunk[]> => { // units(chunkSize) == Byte
-    let chunkPromises : Promise<Chunk>[] = [];
-    const chunkSize : number = Number(await window.electronApi.getEnvVariable("CHUNK_SYZE"));
-
-    if(!chunkSize) Promise.reject({error : "An error occured processing your files"});
-
-    try{
-        for(let offset = 0; offset<(file.size/chunkSize);offset++) {
-        let slice = file.slice(offset*chunkSize, offset*chunkSize+chunkSize);
-
-        const chunkPromise = fileSliceToHash(slice).then(hash => ({
-            offset: offset,
-            hash: hash
-        }));
-        chunkPromises.push(chunkPromise);
-        }
-    }catch(error){
-        Promise.reject({error : `An error occured processing your files : ${error}`});
+    const serializable = {
+        chunks: Object.fromEntries(metaData.chunks), // Map → objeto plano
+        files: metaData.files
     }
 
-    return Promise.all(chunkPromises);
+    let response = await fetch("/backup/update-metaData", {
+        method : "POST",
+        headers : {
+            "Authorization" : `Bearer ${jwt}`,
+            "Content-type" : "application/json"
+        },
+        body : JSON.stringify(serializable);
+    })
 }
 
-const rawFilesHandler = async (files : File[]) : Promise<FileData[]> => {
-    const procesedFiles : FileData[] = []
-    
-    try{
-        for(let file of files) {
-            let chunks : Chunk[] = await fileToChunks(file);
-            let fileHash : string =  await chunksToHash(chunks);
-            
-            chunkHasMemManager.addChunk({fileHash : chunks});
+const packageBackUpMetaData = async (files : File[]) : Promise<BackUpMetadata> => {
+    let result : BackUpMetadata = {
+        chunks : new Map<string, Chunk[]>,
+        files : []
+    };
 
-            procesedFiles.push({
-                hash : fileHash,
-                path : file.webkitRelativePath
+    result["files"] = standarizeFileFormat(files);
+    result["chunks"] = await standarizeAllChunks(files);
+
+    return result;
+}
+
+const standarizeFileFormat = (files : File[]) : FileData[] => {
+    const standarizedFiles : FileData[] = [];
+
+    for(const file of files) {
+        standarizedFiles.push({
+            path : file.webkitRelativePath,
+            size : file.size
+        })
+    }
+
+    return standarizedFiles;
+}
+
+const standarizeAllChunks = async (files : File[]) : Promise<Map<string, Chunk[]>> => {
+    const result = new Map<string, Chunk[]>();
+
+    for(const file of files) {
+        const [filePath, chunks] = await extractChunksFromFile(file);
+        result.set(filePath, chunks);
+    }
+
+    return result;
+}
+
+
+const extractChunksFromFile = async (file : File) : Promise<[string, Chunk[]]> => {
+    const chunks : Chunk[] = [];
+    const chunkSize = Number(await window.electronApi.getEnvVariable("CHUNK_SIZE"));
+    const chunkNum = Math.ceil(file.size/chunkSize);
+    try{   
+        for(let offset = 0;offset<chunkNum;offset++){
+            const rawChunk = file.slice(offset*chunkSize, offset*chunkSize+chunkSize);
+            const chunkHash : string = await fileSliceToHash(rawChunk);
+            
+            chunks.push({
+                offset : offset,
+                hash : chunkHash,
+                filePath : file.webkitRelativePath
             })
         }
-    }catch(error) {
-        Promise.reject({error : `An error occured processing your files : ${error}`});
-    };
-    return Promise.resolve(procesedFiles);
-}
-
-const getMissingFilesAndChunksInServer = async (files : FileData[]) : Promise<string[]> => {
-    const jwt = localStorage.getItem("token");
-
-    const data : Set<Record<string, Chunk[]>> = chunkHasMemManager.getChunks();
-
-    try{
-        const response = await fetch("/backup/compare-files", {
-            method : "POST",
-            headers : {
-                "Content-Type" : "application/json",
-                "Authorization" : `Bearer ${jwt}`
-            },
-            body : JSON.stringify(data)
-        });
-        if(!response.ok) {
-            throw new Error(`Server error : ${response.status}`)
-        }
-
-        const result = await response.json();
-
-        return result;
-
-    }catch(error) {
-        throw error;
+    }catch(err){
+        throw err;
     }
+    const filePath : string = chunks.at(0)!.filePath;7
+    
+
+    return [filePath, chunks];
 }
+
 

@@ -5,26 +5,19 @@ create table if not exists User (
     backUpSize BIGINT not null
 )
 
-create table if not exists File (   
-    hash varchar(256) primary key,
-    username references to User.username,
-    name varvarchar(50) not null,
+create table if not exists File (
+    fullPath text primary key,   
     size BIGINT not null,
-    fullPath text not null,
-
-    UNIQUE (username, full_path)
 )
 
 create table if not exists Chunk (
-    hashSha256 varchar(256) primary key,
-    offset int not null,
-    size BIGINT not null
+    hashSha256 varchar(256) primary key
 )
 
 create table if not exists File-Chunk (
     hashSha256 varchar(256) references to Chunk.hashSha256,
-    fileId varvarchar(10) references to File.hash,
-    chunkOrder int not null,
+    filePath varvarchar(10) references to File.fullPath,
+    offset int not null,
 
-    primary key(chunkOrder, fileId)
+    primary key(offset, fileId)
 )

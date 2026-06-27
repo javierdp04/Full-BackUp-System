@@ -2,8 +2,7 @@ import React, { useEffect, useState } from "react"
 import { Navigate } from "react-router-dom"
 import { jwtDecode, type JwtPayload } from "jwt-decode"
 import type { AuthState } from "../shared/models/models"
-
-
+import { getToken } from "./crypto_utils";
 
 
 export  function ProtectedLayout(children  : React.ReactElement) : React.ReactElement{
@@ -20,7 +19,7 @@ export  function ProtectedLayout(children  : React.ReactElement) : React.ReactEl
 
 async function verifyUser() : Promise<Record<string, boolean>> {
     const serverUrl : string =  await window.electronApi.getEnvVariable("SERVER_URL");
-    const jwt : string | null = localStorage.getItem("token");
+    const jwt : string | null = getToken();
 
     if(!serverUrl) throw Error("Couldn't find the server URL");
     if(!jwt) return {"valid" : false};

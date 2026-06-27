@@ -1,5 +1,3 @@
-import { Chunk } from "../shared/models/models";
-
 const fileSliceToHash= async (slice : Blob) : Promise<string> => {
     let content = await slice.text();
     const encoder = new TextEncoder();
@@ -14,14 +12,9 @@ const fileSliceToHash= async (slice : Blob) : Promise<string> => {
     return Promise.resolve(result);
 }   
 
-const chunksToHash = (chunks : Chunk[]) : Promise<string> => {
-    let joinedHash : string = "";
-
-    chunks.map((chunk) => {
-        joinedHash += chunk.hash;
-    })
-
-    return Promise.resolve(joinedHash);
+const getToken  = () : string | null => {
+    return localStorage.getItem("token")
 }
 
-export { fileSliceToHash, chunksToHash }
+
+export { fileSliceToHash, getToken }
