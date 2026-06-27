@@ -21,3 +21,4 @@ create table if not exists File-Chunk (
 
     primary key(offset, fileId)
 )
+-- ADD triggers on Chunk table to delete chunks in case the chunk isn't asociated with any file;

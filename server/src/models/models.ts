@@ -1,9 +1,15 @@
 export type FileData = {
-    hash : string,
-    path : string
+    path : string,
+    size : number
 }
 
 export type Chunk = {
     offset : number,
-    hash : string
+    hash : string,
+    filePath : string
+}
+
+export type BackUpMetadata = {
+    "chunks" : Map<string, Chunk[]>,
+    "files" : FileData[]
 }

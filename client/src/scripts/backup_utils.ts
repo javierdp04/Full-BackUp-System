@@ -10,7 +10,7 @@ const sendMetadataAndGetFilesToSend(metaData : BackUpMetadata) : Promise<any> =>
         files: metaData.files
     }
 
-    let response = await fetch("/backup/update-metaData", {
+    let response = await fetch("/backup/update-metadata", {
         method : "POST",
         headers : {
             "Authorization" : `Bearer ${jwt}`,
